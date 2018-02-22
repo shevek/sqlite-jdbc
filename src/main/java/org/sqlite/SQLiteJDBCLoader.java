@@ -377,9 +377,9 @@ public class SQLiteJDBCLoader {
      */
     public static String getVersion() {
 
-        URL versionFile = SQLiteJDBCLoader.class.getResource("/META-INF/maven/org.xerial/sqlite-jdbc/pom.properties");
+        URL versionFile = SQLiteJDBCLoader.class.getResource("/META-INF/maven/org.anarres.mirrors.xerial/sqlite-jdbc/pom.properties");
         if(versionFile == null) {
-            versionFile = SQLiteJDBCLoader.class.getResource("/META-INF/maven/org.xerial/sqlite-jdbc/VERSION");
+            versionFile = SQLiteJDBCLoader.class.getResource("/META-INF/maven/org.anarres.mirrors.xerial/sqlite-jdbc/VERSION");
         }
 
         String version = "unknown";
