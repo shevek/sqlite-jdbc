@@ -2,6 +2,7 @@
 include Makefile.common
 
 RESOURCE_DIR = src/main/resources
+SQLITE_SOURCE=src/main/c
 
 .phony: all package native native-all deploy
 
@@ -20,7 +21,7 @@ ifneq ($(SQLITE_SOURCE),$(TARGET)/$(SQLITE_AMAL_PREFIX))
 	created := $(shell touch $(SQLITE_UNPACKED))
 endif
 
-CCFLAGS:= -I$(SQLITE_OUT) -I$(SQLITE_SOURCE) $(CCFLAGS)
+CCFLAGS:= -I$(SQLITE_OUT) -I$(SQLITE_SOURCE) $(CCFLAGS) -g
 
 $(SQLITE_ARCHIVE):
 	@mkdir -p $(@D)
@@ -74,7 +75,9 @@ $(SQLITE_OUT)/sqlite3.o : $(SQLITE_UNPACKED)
 	    -DSQLITE_ENABLE_JSON1 \
 	    -DSQLITE_ENABLE_RTREE \
 	    -DSQLITE_ENABLE_STAT2 \
-	    -DSQLITE_THREADSAFE=1 \
+	    -DSQLITE_ENABLE_STAT3 \
+	    -DSQLITE_ENABLE_STAT4 \
+	    -DSQLITE_THREADSAFE=2 \
 	    -DSQLITE_DEFAULT_MEMSTATUS=0 \
 	    -DSQLITE_DEFAULT_FILE_PERMISSIONS=0666 \
 	    -DSQLITE_MAX_VARIABLE_NUMBER=250000 \
@@ -87,16 +90,17 @@ $(SQLITE_OUT)/$(LIBNAME): $(SQLITE_OUT)/sqlite3.o $(SRC)/org/sqlite/core/NativeD
 	$(CC) $(CCFLAGS) -I $(TARGET)/common-lib -c -o $(SQLITE_OUT)/NativeDB.o $(SRC)/org/sqlite/core/NativeDB.c
 	$(CC) $(CCFLAGS) -o $@ $(SQLITE_OUT)/*.o $(LINKFLAGS)
 # Workaround for strip Protocol error when using VirtualBox on Mac
-	cp $@ /tmp/$(@F)
-	$(STRIP) /tmp/$(@F)
-	cp /tmp/$(@F) $@
+#	cp $@ /tmp/$(@F)
+#	$(STRIP) /tmp/$(@F)
+#	cp /tmp/$(@F) $@
 
 NATIVE_DIR=src/main/resources/org/sqlite/native/$(OS_NAME)/$(OS_ARCH)
 NATIVE_TARGET_DIR:=$(TARGET)/classes/org/sqlite/native/$(OS_NAME)/$(OS_ARCH)
 NATIVE_DLL:=$(NATIVE_DIR)/$(LIBNAME)
 
 # For cross-compilation, install docker. See also https://github.com/dockcross/dockcross
-native-all: native win32 win64 mac64 linux32 linux64 linux-arm linux-armv6 linux-armv7 linux-arm64 linux-android-arm linux-ppc64
+native-all: native win64 mac64 linux32 linux64
+# win32 linux-arm linux-armv6 linux-armv7 linux-arm64 linux-android-arm linux-ppc64
 
 native: $(SQLITE_UNPACKED) $(NATIVE_DLL)
 
